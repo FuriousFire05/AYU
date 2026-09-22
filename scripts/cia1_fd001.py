@@ -1,13 +1,23 @@
 from pathlib import Path
 
 from ayu.data import (
+    SENSOR_COLS,
     add_training_rul,
     describe_subset,
     load_cmapss,
     split_engine_ids,
 )
+from ayu.eda import (
+    get_informative_sensors,
+    get_sensor_variances,
+    save_lifetime_distribution,
+    save_rul_distribution,
+    save_sensor_rul_correlations,
+    save_sensor_trajectories,
+)
 
 DATA_DIR = Path("data/raw/CMaps")
+OUTPUT_DIR = Path("outputs/figures")
 SUBSET = "FD001"
 
 
@@ -15,6 +25,8 @@ def main() -> None:
     print("AYU - Remaining Useful Life Prediction")
     print("=" * 40)
     print()
+
+    OUTPUT_DIR.mkdir(parents=True, exist_ok=True)
 
     train, test, test_rul = load_cmapss(
         DATA_DIR,
@@ -52,6 +64,61 @@ def main() -> None:
     print()
     print("Last five cycles:")
     print(example_engine.tail().to_string(index=False))
+
+    print()
+    print("=== SENSOR ANALYSIS ===")
+
+    variances = get_sensor_variances(
+        train,
+        SENSOR_COLS,
+    )
+
+    informative_sensors = get_informative_sensors(
+        train,
+        SENSOR_COLS,
+    )
+
+    removed_sensors = sorted(set(SENSOR_COLS) - set(informative_sensors))
+
+    print(f"Total sensors:       {len(SENSOR_COLS)}")
+    print(f"Informative sensors: {len(informative_sensors)}")
+    print(f"Removed sensors:     {removed_sensors}")
+
+    print()
+    print("Five highest-variance sensors:")
+    print(variances.head().to_string())
+
+    correlations = save_sensor_rul_correlations(
+        train,
+        informative_sensors,
+        OUTPUT_DIR,
+    )
+
+    print()
+    print("Five sensors most correlated with RUL:")
+    print(correlations.head().to_string())
+
+    strongest_sensor = str(correlations.index[0])
+
+    save_lifetime_distribution(
+        train,
+        OUTPUT_DIR,
+    )
+
+    save_rul_distribution(
+        train,
+        OUTPUT_DIR,
+    )
+
+    save_sensor_trajectories(
+        train,
+        strongest_sensor,
+        OUTPUT_DIR,
+    )
+
+    print()
+    print("Saved EDA figures to:")
+    print(OUTPUT_DIR.resolve())
 
 
 if __name__ == "__main__":
