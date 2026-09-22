@@ -1,16 +1,17 @@
-.venv/
+﻿.venv/
 __pycache__/
 *.py[cod]
 .pytest_cache/
 .ruff_cache/
 .ipynb_checkpoints/
 
-data/raw/CMaps/*
+data/raw/*
+!data/raw/.gitkeep
+
 data/processed/*
+!data/processed/.gitkeep
 
 outputs/predictions/*
-
-!data/raw/.gitkeep
-!data/processed/.gitkeep
 !outputs/predictions/.gitkeep
+
 !outputs/figures/.gitkeep

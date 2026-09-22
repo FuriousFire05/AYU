@@ -7,13 +7,12 @@ from ayu.data import (
     split_engine_ids,
 )
 
-
 DATA_DIR = Path("data/raw/CMaps")
 SUBSET = "FD001"
 
 
 def main() -> None:
-    print("AYU — Remaining Useful Life Prediction")
+    print("AYU - Remaining Useful Life Prediction")
     print("=" * 40)
     print()
 
@@ -37,25 +36,22 @@ def main() -> None:
     print(f"Training engines:   {len(train_ids)}")
     print(f"Validation engines: {len(validation_ids)}")
 
-    print()
-    print("=== RUL SANITY CHECK ===")
+    first_unit = int(train["unit_id"].iloc[0])
 
-    example_engine = train[
-        train["unit_id"] == train["unit_id"].iloc[0]
+    example_engine = train.loc[
+        train["unit_id"] == first_unit,
+        ["unit_id", "cycle", "rul"],
     ]
 
-    print(
-        example_engine[
-            ["unit_id", "cycle", "rul"]
-        ].head()
-    )
+    print()
+    print("=== RUL SANITY CHECK ===")
+    print()
+    print("First five cycles:")
+    print(example_engine.head().to_string(index=False))
 
-    print("...")
-    print(
-        example_engine[
-            ["unit_id", "cycle", "rul"]
-        ].tail()
-    )
+    print()
+    print("Last five cycles:")
+    print(example_engine.tail().to_string(index=False))
 
 
 if __name__ == "__main__":

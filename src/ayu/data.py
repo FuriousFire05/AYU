@@ -1,10 +1,10 @@
 from __future__ import annotations
 
 from pathlib import Path
+from typing import cast
 
 import pandas as pd
 from sklearn.model_selection import train_test_split
-
 
 COLUMN_NAMES = (
     ["unit_id", "cycle"]
@@ -28,9 +28,7 @@ def load_cmapss(
 
     for path in (train_path, test_path, rul_path):
         if not path.exists():
-            raise FileNotFoundError(
-                f"Missing required C-MAPSS file: {path}"
-            )
+            raise FileNotFoundError(f"Missing required C-MAPSS file: {path}")
 
     train = pd.read_csv(
         train_path,
@@ -46,24 +44,21 @@ def load_cmapss(
         names=COLUMN_NAMES,
     )
 
-    test_rul = pd.read_csv(
+    test_rul_frame = pd.read_csv(
         rul_path,
         sep=r"\s+",
         header=None,
         names=["rul_at_last_observation"],
-    )["rul_at_last_observation"]
-
-    train = (
-        train
-        .sort_values(["unit_id", "cycle"])
-        .reset_index(drop=True)
     )
 
-    test = (
-        test
-        .sort_values(["unit_id", "cycle"])
-        .reset_index(drop=True)
+    test_rul = cast(
+        pd.Series,
+        test_rul_frame["rul_at_last_observation"],
     )
+
+    train = train.sort_values(["unit_id", "cycle"]).reset_index(drop=True)
+
+    test = test.sort_values(["unit_id", "cycle"]).reset_index(drop=True)
 
     if train.isna().any().any():
         raise ValueError("Training data contains unexpected missing values.")
@@ -73,7 +68,7 @@ def load_cmapss(
 
     if test["unit_id"].nunique() != len(test_rul):
         raise ValueError(
-            "Number of test engines does not match the number of RUL labels."
+            "Number of test engines does not match the number of supplied RUL labels."
         )
 
     return train, test, test_rul
@@ -84,20 +79,16 @@ def add_training_rul(
     cap: int | None = None,
 ) -> pd.DataFrame:
     """
-    Add Remaining Useful Life labels to training trajectories.
+    Add Remaining Useful Life labels.
 
-    Because training engines run until failure:
+    Training trajectories continue until failure, so:
 
-        RUL = final cycle of engine - current cycle
+        RUL = final engine cycle - current cycle
     """
 
     result = df.copy()
 
-    final_cycle = (
-        result
-        .groupby("unit_id")["cycle"]
-        .transform("max")
-    )
+    final_cycle = result.groupby("unit_id")["cycle"].transform("max")
 
     result["rul_raw"] = final_cycle - result["cycle"]
 
@@ -115,13 +106,12 @@ def split_engine_ids(
     random_state: int = 42,
 ) -> tuple[list[int], list[int]]:
     """
-    Split by complete engines rather than individual rows.
+    Split complete engines into train and validation sets.
 
-    This prevents cycles from the same engine appearing in both
-    training and validation sets.
+    Cycles from one engine must never appear in both sets.
     """
 
-    engine_ids = df["unit_id"].unique()
+    engine_ids = df["unit_id"].astype(int).drop_duplicates().tolist()
 
     train_ids, validation_ids = train_test_split(
         engine_ids,
@@ -129,7 +119,7 @@ def split_engine_ids(
         random_state=random_state,
     )
 
-    return train_ids.tolist(), validation_ids.tolist()
+    return list(train_ids), list(validation_ids)
 
 
 def describe_subset(
@@ -137,27 +127,22 @@ def describe_subset(
     test: pd.DataFrame,
     test_rul: pd.Series,
 ) -> None:
-    """Print useful sanity checks for a loaded C-MAPSS subset."""
+    """Print basic sanity checks for a C-MAPSS subset."""
 
     print("=== C-MAPSS SUMMARY ===")
     print()
 
     print(f"Training rows:     {len(train):,}")
     print(f"Training engines:  {train['unit_id'].nunique():,}")
-
     print(f"Test rows:         {len(test):,}")
     print(f"Test engines:      {test['unit_id'].nunique():,}")
-
     print(f"Test RUL labels:   {len(test_rul):,}")
 
     print()
     print(f"Columns:           {len(train.columns)}")
 
+    life_lengths = train.groupby("unit_id")["cycle"].max()
+
     print()
     print("Training lifetime statistics:")
-    print(
-        train.groupby("unit_id")["cycle"]
-        .max()
-        .describe()
-        .round(2)
-    )
+    print(life_lengths.describe().round(2).to_string())
