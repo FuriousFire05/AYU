@@ -1,0 +1,14 @@
+{
+  "best_rounds": {
+    "xgboost_with_cycle": 84,
+    "xgboost_without_cycle": 264
+  },
+  "criterion": "lowest_engine_disjoint_validation_rmse",
+  "eligible_models": [
+    "xgboost_with_cycle",
+    "xgboost_without_cycle"
+  ],
+  "official_test_labels_consulted": false,
+  "selected_boosting_rounds": 84,
+  "selected_model": "xgboost_with_cycle"
+}

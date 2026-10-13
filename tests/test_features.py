@@ -1,7 +1,11 @@
 import pandas as pd
 import pytest
 
-from ayu.features import add_causal_rolling_features, determine_informative_sensors
+from ayu.features import (
+    add_causal_rolling_features,
+    determine_informative_sensors,
+    get_model_feature_columns,
+)
 
 
 def test_rolling_features_reset_at_engine_boundaries() -> None:
@@ -40,6 +44,22 @@ def test_future_value_cannot_change_earlier_rolling_feature() -> None:
     )
 
 
+def test_all_milestone_windows_are_trailing_only() -> None:
+    frame = pd.DataFrame(
+        {
+            "unit_id": [1] * 21,
+            "cycle": range(1, 22),
+            "sensor_1": [float(value) for value in range(1, 22)],
+        }
+    )
+
+    result = add_causal_rolling_features(frame, ["sensor_1"])
+
+    assert result.loc[20, "sensor_1_rolling_mean_5"] == pytest.approx(19.0)
+    assert result.loc[20, "sensor_1_rolling_mean_10"] == pytest.approx(16.5)
+    assert result.loc[20, "sensor_1_rolling_mean_20"] == pytest.approx(11.5)
+
+
 def test_constant_sensor_is_excluded() -> None:
     frame = pd.DataFrame(
         {
@@ -53,3 +73,14 @@ def test_constant_sensor_is_excluded() -> None:
     )
 
     assert selected == ["sensor_variable"]
+
+
+def test_model_features_exclude_unit_id_and_control_cycle() -> None:
+    with_cycle = get_model_feature_columns(["sensor_1"], include_cycle=True)
+    without_cycle = get_model_feature_columns(["sensor_1"], include_cycle=False)
+
+    assert "unit_id" not in with_cycle
+    assert "unit_id" not in without_cycle
+    assert "cycle" in with_cycle
+    assert "cycle" not in without_cycle
+    assert len(with_cycle) == len(without_cycle) + 1

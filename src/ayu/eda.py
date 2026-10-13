@@ -9,6 +9,7 @@ import pandas as pd
 def save_lifetime_distribution(
     train: pd.DataFrame,
     output_dir: Path,
+    subset: str = "FD001",
 ) -> None:
     """Plot the distribution of engine lifetimes."""
 
@@ -19,11 +20,11 @@ def save_lifetime_distribution(
 
     plt.xlabel("Observed lifetime (cycles)")
     plt.ylabel("Number of engines")
-    plt.title("FD001 Training Engine Lifetime Distribution")
+    plt.title(f"{subset} Training Engine Lifetime Distribution")
 
     plt.tight_layout()
     plt.savefig(
-        output_dir / "fd001_lifetime_distribution.png",
+        output_dir / f"{subset.lower()}_lifetime_distribution.png",
         dpi=200,
     )
     plt.close()
@@ -32,6 +33,7 @@ def save_lifetime_distribution(
 def save_rul_distribution(
     train: pd.DataFrame,
     output_dir: Path,
+    subset: str = "FD001",
 ) -> None:
     """Plot the distribution of RUL targets."""
 
@@ -40,11 +42,11 @@ def save_rul_distribution(
 
     plt.xlabel("Remaining Useful Life (cycles)")
     plt.ylabel("Number of observations")
-    plt.title("FD001 Remaining Useful Life Distribution")
+    plt.title(f"{subset} Remaining Useful Life Distribution")
 
     plt.tight_layout()
     plt.savefig(
-        output_dir / "fd001_rul_distribution.png",
+        output_dir / f"{subset.lower()}_rul_distribution.png",
         dpi=200,
     )
     plt.close()
@@ -78,6 +80,7 @@ def save_sensor_trajectories(
     sensor: str,
     output_dir: Path,
     engine_ids: tuple[int, ...] = (1, 2, 3),
+    subset: str = "FD001",
 ) -> None:
     """Plot one sensor across several engine lifetimes."""
 
@@ -94,12 +97,12 @@ def save_sensor_trajectories(
 
     plt.xlabel("Cycle")
     plt.ylabel(sensor)
-    plt.title(f"FD001 Example Degradation Trajectories: {sensor}")
+    plt.title(f"{subset} Example Degradation Trajectories: {sensor}")
     plt.legend()
 
     plt.tight_layout()
     plt.savefig(
-        output_dir / f"fd001_{sensor}_trajectories.png",
+        output_dir / f"{subset.lower()}_{sensor}_trajectories.png",
         dpi=200,
     )
     plt.close()
@@ -109,6 +112,7 @@ def save_sensor_rul_correlations(
     train: pd.DataFrame,
     sensor_cols: list[str],
     output_dir: Path,
+    subset: str = "FD001",
 ) -> pd.Series:
     """Plot absolute Pearson correlation between sensors and RUL."""
 
@@ -128,12 +132,12 @@ def save_sensor_rul_correlations(
 
     plt.xlabel("Sensor")
     plt.ylabel("Absolute Pearson correlation with RUL")
-    plt.title("FD001 Sensor Association with Remaining Useful Life")
+    plt.title(f"{subset} Sensor Association with Remaining Useful Life")
     plt.xticks(rotation=90)
 
     plt.tight_layout()
     plt.savefig(
-        output_dir / "fd001_sensor_rul_correlations.png",
+        output_dir / f"{subset.lower()}_sensor_rul_correlations.png",
         dpi=200,
     )
     plt.close()

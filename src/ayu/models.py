@@ -24,6 +24,7 @@ def make_xgboost_regressor(
     *,
     n_estimators: int = 3_000,
     early_stopping_rounds: int | None = 50,
+    random_state: int = 42,
 ) -> XGBRegressor:
     """Create the deterministic XGBoost regressor used in CIA1."""
 
@@ -35,7 +36,7 @@ def make_xgboost_regressor(
         "subsample": 0.8,
         "colsample_bytree": 0.8,
         "reg_lambda": 1.0,
-        "random_state": 42,
+        "random_state": random_state,
         "n_jobs": -1,
         "tree_method": "hist",
     }
@@ -49,10 +50,18 @@ def fit_xgboost_regressor(
     train_rul: ArrayLike,
     validation_features: pd.DataFrame,
     validation_rul: ArrayLike,
+    *,
+    n_estimators: int = 3_000,
+    early_stopping_rounds: int = 50,
+    random_state: int = 42,
 ) -> XGBRegressor:
     """Fit XGBoost with validation-based early stopping (XGBoost 3.4 API)."""
 
-    model = make_xgboost_regressor()
+    model = make_xgboost_regressor(
+        n_estimators=n_estimators,
+        early_stopping_rounds=early_stopping_rounds,
+        random_state=random_state,
+    )
     model.fit(
         train_features,
         train_rul,

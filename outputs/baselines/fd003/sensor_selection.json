@@ -1,0 +1,52 @@
+{
+  "fit_partition": "development_train_engines_only",
+  "removed": [
+    "sensor_1",
+    "sensor_5",
+    "sensor_16",
+    "sensor_18",
+    "sensor_19"
+  ],
+  "selected": [
+    "sensor_2",
+    "sensor_3",
+    "sensor_4",
+    "sensor_6",
+    "sensor_7",
+    "sensor_8",
+    "sensor_9",
+    "sensor_10",
+    "sensor_11",
+    "sensor_12",
+    "sensor_13",
+    "sensor_14",
+    "sensor_15",
+    "sensor_17",
+    "sensor_20",
+    "sensor_21"
+  ],
+  "variance_threshold": 1e-10,
+  "variances": {
+    "sensor_1": 0.0,
+    "sensor_10": 1.219533009593077e-05,
+    "sensor_11": 0.08966851632761284,
+    "sensor_12": 10.653302540467378,
+    "sensor_13": 0.025544018543150054,
+    "sensor_14": 272.79943086494205,
+    "sensor_15": 0.003649194603180199,
+    "sensor_16": 1.2037663674690596e-35,
+    "sensor_17": 3.1036735387182066,
+    "sensor_18": 0.0,
+    "sensor_19": 0.0,
+    "sensor_2": 0.27317968680987187,
+    "sensor_20": 0.06171745090370196,
+    "sensor_21": 0.022159290003211683,
+    "sensor_3": 46.5430927615943,
+    "sensor_4": 95.441795236166,
+    "sensor_5": 3.1556013063380915e-30,
+    "sensor_6": 0.0003405396849841726,
+    "sensor_7": 11.86576074067593,
+    "sensor_8": 0.02561375302748003,
+    "sensor_9": 397.54582034816764
+  }
+}

@@ -1,0 +1,22 @@
+{
+  "evaluation_unit": "last_observed_test_cycle_per_engine",
+  "locked_result": true,
+  "metrics": {
+    "naive_mean": {
+      "mae": 63.270898058252435,
+      "nasa_score": 5143282.779169576,
+      "r2": -2.2983511238521754,
+      "rmse": 75.18009423903638
+    },
+    "xgboost_with_cycle": {
+      "mae": 28.458593769073488,
+      "nasa_score": 54258.8735107247,
+      "r2": 0.27745637377784205,
+      "rmse": 35.187341811929855
+    }
+  },
+  "observations": 100,
+  "selected_boosting_rounds": 63,
+  "selected_model": "xgboost_with_cycle",
+  "selection_source": "engine_disjoint_cycle_level_validation_only"
+}
